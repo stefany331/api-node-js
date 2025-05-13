@@ -3,10 +3,20 @@ const db = require('../database/connection');
 module.exports = {
     async listarConfiguracoes(request, response) {
         try {
+
+            const sql = `
+                SELECT
+                    id_config, id_loc_irriga, umid_min, umid_max, temp_max, criado_em FROM configuracoes;
+                FROM configuracoes;
+                `;   
+
+            const [rows] = await db.query(sql);            
+
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: 'Lista de configurações', 
-                dados: null
+                mensagem: 'Lista de configurações',
+                itens: rows.length, 
+                dados: rows
             });
         } catch (error) {
             return response.status(500).json({
