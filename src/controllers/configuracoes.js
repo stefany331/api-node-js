@@ -64,10 +64,38 @@ module.exports = {
     }, 
     async editarConfiguracoes(request, response) {
         try {
+
+            const {id_loc_irriga, umid_min, umid_max, temp_max, criado_em } = request.body;
+            const { id_config } = request.params;
+            const sql = `
+                  UPDATE configuracoes SET
+                id_config = ?, id_loc_irriga = ?, umid_min = ?, umid_max = ?, temp_max = ?, criado_em = ? 
+                WHERE
+                 umid_min = ? 
+                 umid_max = ?;
+                `;    
+
+            const values = [id_loc_irriga, umid_min,  umid_max, temp_max, criado_em, id_config];
+            const [result] = await db.query(sql, values);
+
+            if (result.affectedRows === 0) { 
+                return response.status(404).json({ 
+                sucesso: false, 
+                mensagem: `Usuário ${id_config} não encontrado!`, 
+                dados: null 
+                }); 
+            }
+
+            const dados = { 
+                umid_min, 
+                umid_max
+                };
+
+
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: 'Alteração no cadastro de configurações', 
-                dados: null
+                mensagem: 'Usuário ${id} atualizado com sucesso!', 
+                dados
             });
         } catch (error) {
             return response.status(500).json({
