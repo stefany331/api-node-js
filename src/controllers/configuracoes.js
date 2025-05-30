@@ -65,23 +65,22 @@ module.exports = {
     async editarConfiguracoes(request, response) {
         try {
 
-            const {id_loc_irriga, umid_min, umid_max, temp_max, criado_em } = request.body;
-            const { id_config } = request.params;
+            const {id_loc_irriga, umid_min, umid_max, temp_max, criado_em,} = request.body;
+            const { id } = request.params;
             const sql = `
                   UPDATE configuracoes SET
-                id_config = ?, id_loc_irriga = ?, umid_min = ?, umid_max = ?, temp_max = ?, criado_em = ? 
+                 id_loc_irriga = ?, umid_min = ?, umid_max = ?, temp_max = ?, criado_em = ? 
                 WHERE
-                 umid_min = ? 
-                 umid_max = ?;
+                 id_config = ?;
                 `;    
 
-            const values = [id_loc_irriga, umid_min,  umid_max, temp_max, criado_em, id_config];
+            const values = [id_loc_irriga, umid_min,  umid_max, temp_max, criado_em, id];
             const [result] = await db.query(sql, values);
 
             if (result.affectedRows === 0) { 
                 return response.status(404).json({ 
                 sucesso: false, 
-                mensagem: `Usuário ${id_config} não encontrado!`, 
+                mensagem: `Usuário ${id} não encontrado!`, 
                 dados: null 
                 }); 
             }
@@ -94,7 +93,7 @@ module.exports = {
 
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: 'Usuário ${id} atualizado com sucesso!', 
+                mensagem: `Usuário ${id} atualizado com sucesso!`, 
                 dados
             });
         } catch (error) {
@@ -107,12 +106,31 @@ module.exports = {
     }, 
     async apagarConfiguracoes(request, response) {
         try {
+             const { id } = request.params;
+             const sql = `DELETE FROM configuracoes WHERE id_config = ?`;
+             const values = [id];
+             const [result] = await db.query(sql, values);
+
+             if (result.affectedRows == 0) {
+                return response.status (404).json({
+                    sucesso: false,
+                    mensagem: `Configuração ${id} não encontrado!`,
+                    dados: null
+                });
+             }
+
+
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: 'Exclusão de configurações', 
+                mensagem: `Configuração ${id} excluído com sucesso`, 
                 dados: null
-            });
-        } catch (error) {
+            
+              });
+
+            } 
+
+
+            catch (error) {
             return response.status(500).json({
                 sucesso: false, 
                 mensagem: 'Erro na requisição.', 
